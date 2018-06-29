@@ -6,7 +6,7 @@
   "scripts": {
     "test": "clear; nodemon;",
     "start": "ts-node server.ts",
-    "preinstall": " npm i -g tsc;npm i -g ts-node;"
+    "preinstall": " npm i -g typescript;npm i -g ts-node;"
   },
   "author": "Andrew Brantley",
   "license": "ISC",
@@ -20,6 +20,7 @@
     "exec": "ts-node server"
   },
   "dependencies": {
+    "@types/node": "^10.5.1",
     "config": "^1.30.0",
     "express": "^4.16.3",
     "ws": "^5.2.1"

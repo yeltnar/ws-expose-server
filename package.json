@@ -1,0 +1,25 @@
+{
+  "name": "ws-expose-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.ts",
+  "scripts": {
+    "test": "clear; nodemon;"
+  },
+  "author": "Andrew Brantley",
+  "license": "ISC",
+  "nodemonConfig": {
+    "ext": "ts",
+    "ignore": [
+      "test/*",
+      "docs/*"
+    ],
+    "delay": "100",
+    "exec": "ts-node server"
+  },
+  "dependencies": {
+    "config": "^1.30.0",
+    "express": "^4.16.3",
+    "ws": "^5.2.1"
+  }
+}

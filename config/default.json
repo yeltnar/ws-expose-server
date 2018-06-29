@@ -1,0 +1,37 @@
+{
+    "http_server": {
+        "keepArr": [
+            "_readableState",
+            "readable",
+            "domain",
+            "_events",
+            "_eventsCount",
+            "_maxListeners",
+            "httpVersionMajor",
+            "httpVersionMinor",
+            "httpVersion",
+            "complete",
+            "headers",
+            "rawHeaders",
+            "trailers",
+            "rawTrailers",
+            "upgrade",
+            "url",
+            "method",
+            "statusCode",
+            "statusMessage",
+            "_consuming",
+            "_dumped",
+            "next",
+            "baseUrl",
+            "originalUrl",
+            "_parsedUrl",
+            "params",
+            "query",
+            "body",
+            "route"
+        ],
+        "timeout":30000
+    },
+    "ws_server":{}
+}

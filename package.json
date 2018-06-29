@@ -5,6 +5,7 @@
   "main": "server.ts",
   "scripts": {
     "test": "clear; nodemon;",
+    "test": "ts-node server.ts",
     "preinstall": " npm i -g tsc;npm i -g ts-node;"
   },
   "author": "Andrew Brantley",

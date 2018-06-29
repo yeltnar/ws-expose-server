@@ -4,7 +4,8 @@
   "description": "",
   "main": "server.ts",
   "scripts": {
-    "test": "clear; nodemon;"
+    "test": "clear; nodemon;",
+    "preinstall":" npm i -g tsc;npm i -g ts-node;"
   },
   "author": "Andrew Brantley",
   "license": "ISC",

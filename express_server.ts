@@ -13,11 +13,11 @@ function appInit( app, http_server_config, socketFuncts ){
         next();
     })
 
-    app.get('/version',(req, res, next)=>{
+    app.use('/version',(req, res, next)=>{
         res.end(process.version);
     });
     
-    app.get('/v1/*',async (req, res, next)=>{
+    app.use('/v1/*',async (req, res, next)=>{
 
         let incoming_token = req.body.token || req.query.token;
 

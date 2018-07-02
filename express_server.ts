@@ -24,7 +24,8 @@ function appInit( app, http_server_config, socketFuncts ){
         let toSend = {
             "connection":{},
             "request":{},
-            "errors":{} // put app the error happened in
+            "errors":{}, // put app the error happened in
+            "date":new Date()
         };
 
         http_server_config.keepArr.forEach((cur, i, arr)=>{
@@ -47,6 +48,8 @@ function appInit( app, http_server_config, socketFuncts ){
             res.json(jsonResponse);
         }catch(e){console.error(e);}
     })
+
+    console.log('appInit done')
 
     return app;
 }

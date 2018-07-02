@@ -36,6 +36,7 @@ function wsInit( server, ws_server_config  ){
         });
     });
 
+    console.log("wsInit done")
     return {sendToSockets};
 }
 
@@ -75,6 +76,12 @@ async function sendToSockets(objToSend, incoming_token, device, group){
                 console.log("token check failed for "+ws.device_name);
                 console.log("ws.token "+ws.token);
                 console.log("incoming_token "+incoming_token);
+            }
+
+            if( promiseArr.length === 0 ){
+                promiseArr.push(async ()=>{
+                    return {"error":"Not sending to any socket. Could be token issue or socket connection issue."};
+                })
             }
 
         });

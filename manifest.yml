@@ -2,6 +2,6 @@
 applications:
 - name: ws-expose
   random-route: false
-  memory: 128M
+  memory: 256M
   instances: 1
   domain: mybluemix.net

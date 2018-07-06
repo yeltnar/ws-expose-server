@@ -3,7 +3,7 @@ let token;
     
 // takes express app
 function appInit( app, http_server_config, socketFuncts ){
-    token = http_server_config;
+    //token = http_server_config; // token is not in this data
     
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());
@@ -13,18 +13,19 @@ function appInit( app, http_server_config, socketFuncts ){
         next();
     })
 
-    app.get('/version',(req, res, next)=>{
+    app.use('/version',(req, res, next)=>{
         res.end(process.version);
     });
     
-    app.get('/v1/*',async (req, res, next)=>{
+    app.use('/v1/*',async (req, res, next)=>{
 
         let incoming_token = req.body.token || req.query.token;
 
         let toSend = {
             "connection":{},
             "request":{},
-            "errors":{} // put app the error happened in
+            "errors":{}, // put app the error happened in
+            "date":new Date()
         };
 
         http_server_config.keepArr.forEach((cur, i, arr)=>{
@@ -47,6 +48,13 @@ function appInit( app, http_server_config, socketFuncts ){
             res.json(jsonResponse);
         }catch(e){console.error(e);}
     })
+
+    // this must be last
+    app.use((req, res, next)=>{
+        res.status(400).json({"error":"command not understood"});
+    })
+
+    console.log('appInit done')
 
     return app;
 }

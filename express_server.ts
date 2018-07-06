@@ -3,7 +3,7 @@ let token;
     
 // takes express app
 function appInit( app, http_server_config, socketFuncts ){
-    token = http_server_config;
+    //token = http_server_config; // token is not in this data
     
     app.use(bodyParser.urlencoded({ extended: false }));
     app.use(bodyParser.json());
@@ -47,6 +47,11 @@ function appInit( app, http_server_config, socketFuncts ){
         try{
             res.json(jsonResponse);
         }catch(e){console.error(e);}
+    })
+
+    // this must be last
+    app.use((req, res, next)=>{
+        res.status(400).json({"error":"command not understood"});
     })
 
     console.log('appInit done')

@@ -4,6 +4,7 @@ const express = require('express');
 
 const socketGroups = {};
 let wss;
+let pingInterval = 1000*60; // 1 min
 
 function wsInit( server, ws_server_config  ){
 
@@ -13,19 +14,45 @@ function wsInit( server, ws_server_config  ){
 
         console.log("new connection")
 
+        ws.isAlive = true;
+
         ws.on('message', (message)=>{
             try{
                 message = JSON.parse(message);
-            }catch(e){console.error(e);}
+            }catch(e){
+                console.error(e);
+                return;
+            }
 
             if( message.response_device ){
-                ws.device_name = message.response_device.device_name;
-                ws.device_group = message.response_device.device_group;
-                ws.token = message.response_device.token;
+                if ( check_message_response_device( message.response_device ) ){
+                    ws.device_name = message.response_device.device_name;
+                    ws.device_group = message.response_device.device_group;
+                    ws.token = message.response_device.token;
+                    ws.token_type = message.response_device.token_type || "string";
+                }
             }else{ console.warn("message.response_device is not set!"); }
 
-            // console.log("message");
-            // console.log(message);
+            ws.check_token = (inStr)=>{
+
+                let toReturn;
+
+                if(ws.token_type === "regex"){ // if this is defined then you know you have executed the if currently on line 23 where it is set
+                    if( !ws.token_regex ){
+                        ws.token_regex = new RegExp(ws.token);
+                    }
+
+                    toReturn = ws.token_regex.test(inStr);
+                }else if( ws.token_type === "string" ){
+                    console.warn("Not a regex; ws.device_name "+ws.device_name+" ws.device_group "+ws.device_group);
+                    toReturn = inStr === inStr;
+                }else{
+                    throw "websocket_server.ts 48 EEEEEKKKK"
+                }
+
+                if(toReturn===undefined){throw "wss 45 toReturn must be set"};
+                return toReturn;
+            };
 
             if( message.send_to_device && message.send_to_device.uid ){
                 resolveSocket(message.send_to_device.uid, message);
@@ -34,6 +61,27 @@ function wsInit( server, ws_server_config  ){
             }
 
         });
+
+
+        let pingInterval_id = setInterval(()=>{
+            
+            if (ws.isAlive === false) {
+                clearInterval(pingInterval_id);
+                ws.terminate();
+            }else{
+                ws.isAlive = false;
+                let o = {
+                    "ws_server_ping":true,
+                    "errors":{}, // put app the error happened in
+                    "date":new Date()
+                };
+
+                ws.ping(JSON.stringify(o));
+            }
+            
+        },pingInterval)
+
+        ws.on('pong', ()=>{ws.isAlive = true});
     });
 
     console.log("wsInit done")
@@ -56,7 +104,7 @@ async function sendToSockets(objToSend, incoming_token, device, group){
         let i=0;
         wss.clients.forEach(function (ws){
 
-            if( incoming_token === ws.token ){
+            if( ws.check_token(incoming_token) ){
 
                 objToSend.send_to_device = {};
 
@@ -94,6 +142,11 @@ async function sendToSockets(objToSend, incoming_token, device, group){
         return [];
     }
     
+}
+
+function check_message_response_device( response_device ){
+    // TODO fill out
+    return true;
 }
 
 function resolveSocket(uid, data){

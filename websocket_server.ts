@@ -30,6 +30,7 @@ function wsInit( server, ws_server_config  ){
                     ws.device_group = message.response_device.device_group;
                     ws.token = message.response_device.token;
                     ws.token_type = message.response_device.token_type || "string";
+                    console.log("ws.device_name set "+ws.device_name)
                 }
             }else{ console.warn("message.response_device is not set!"); }
 
@@ -66,9 +67,12 @@ function wsInit( server, ws_server_config  ){
         let pingInterval_id = setInterval(()=>{
             
             if (ws.isAlive === false) {
+
                 clearInterval(pingInterval_id);
                 ws.terminate();
+
             }else{
+                
                 ws.isAlive = false;
                 let o = {
                     "ws_server_ping":true,
@@ -82,6 +86,10 @@ function wsInit( server, ws_server_config  ){
         },pingInterval)
 
         ws.on('pong', ()=>{ws.isAlive = true});
+
+        ws.on('close', ()=>{
+            console.log(ws.device_name+' disconnected');
+        });
     });
 
     console.log("wsInit done")

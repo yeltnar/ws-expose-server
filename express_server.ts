@@ -14,7 +14,11 @@ function appInit( app, http_server_config, socketFuncts ){
     })
 
     app.use('/version',(req, res, next)=>{
-        res.end(process.version);
+        let obj:any = {
+            "node_version":process.version
+        };
+        obj = {"result":"nice try...but yeah, its running"};
+        res.json(obj);
     });
     
     app.use('/v1/*',async (req, res, next)=>{

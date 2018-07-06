@@ -38,8 +38,12 @@ function appInit( app, http_server_config, socketFuncts ){
 
         let jsonResponse = await new Promise((resolve, reject)=>{
 
-            socketFuncts.sendToSockets(toSend, incoming_token).then((data)=>{   
-                resolve(data);
+            socketFuncts.sendToSockets(toSend, incoming_token).then((data)=>{
+                if( data.result_only ){
+                    resolve(data.result);
+                }else{
+                    resolve(data);
+                }  
             });
 
             setTimeout(() => {

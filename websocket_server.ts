@@ -1,6 +1,7 @@
 const http = require('http');
 const WebSocket = require('ws');
 const express = require('express');
+const uuidv4 = require('uuid/v4');
 
 const socketGroups = {};
 let wss;
@@ -30,7 +31,7 @@ function wsInit( server, ws_server_config  ){
                     ws.device_group = message.response_device.device_group;
                     ws.token = message.response_device.token;
                     ws.token_type = message.response_device.token_type || "string";
-                    console.log("ws.device_name set "+ws.device_name)
+                    console.log(ws.device_name+" name set")
                 }
             }else{ console.warn("message.response_device is not set!"); }
 
@@ -55,14 +56,12 @@ function wsInit( server, ws_server_config  ){
                 return toReturn;
             };
 
-            if( message.send_to_device && message.send_to_device.uid ){
-                resolveSocket(message.send_to_device.uid, message);
+            if( message.send_to_device && message.send_to_device.uuid ){
+                resolveSocket(message.send_to_device.uuid, message);
             }else{
                 
             }
-
         });
-
 
         let pingInterval_id = setInterval(()=>{
             
@@ -88,6 +87,7 @@ function wsInit( server, ws_server_config  ){
         ws.on('pong', ()=>{ws.isAlive = true});
 
         ws.on('close', ()=>{
+            clearInterval(pingInterval_id);
             console.log(ws.device_name+' disconnected');
         });
     });
@@ -116,7 +116,7 @@ async function sendToSockets(objToSend, incoming_token, device, group){
 
                 objToSend.send_to_device = {};
 
-                objToSend.send_to_device.uid = Math.random(); // for each socket set its own uid 
+                objToSend.send_to_device.uuid = uuidv4(); // for each socket set its own uuid 
                 objToSend.send_to_device.index = i++;
 
                 //console.log(objToSend)
@@ -125,7 +125,7 @@ async function sendToSockets(objToSend, incoming_token, device, group){
 
                 promiseArr.push(new Promise((resolve, reject)=>{
                     ws.send( strToSend );
-                    uidResolveTracker[objToSend.send_to_device.uid] = resolve;
+                    uidResolveTracker[objToSend.send_to_device.uuid] = resolve;
                     //resolve("work")
                 }));
             }else{
@@ -157,20 +157,25 @@ function check_message_response_device( response_device ){
     return true;
 }
 
-function resolveSocket(uid, data){
-    if( !uidResolveTracker[uid] ){
-        console.warn("uidResolveTracker[uid] is not defined)");
+function resolveSocket(uuid, data){
+    if( !uidResolveTracker[uuid] ){
+        console.warn("uidResolveTracker[uuid] is not defined)");
     }else if( !data ){
         console.warn("data is not defined");
     }else{
-        // console.log("ws 87 resolving "+uid);
-        // console.log("typeof uidResolveTracker[uid] "+typeof uidResolveTracker[uid]);
-        uidResolveTracker[uid]( data );
+        // console.log("ws 87 resolving "+uuid);
+        // console.log("typeof uidResolveTracker[uuid] "+typeof uidResolveTracker[uuid]);
+
+        if( data.result_only ){
+            data = data.result;
+        }
+
+        uidResolveTracker[uuid]( data );
     }
 }
 
 function getUid( message ){
-    return message.uid
+    return message.uuid
 }
 
 console.log("websocket server done")

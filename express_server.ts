@@ -26,7 +26,9 @@ function appInit( app, http_server_config, socketFuncts ){
         let incoming_token = req.body.token || req.query.token;
 
         let toSend = {
-            "connection":{},
+            "connection":{
+                preferedResponseName:null
+            },
             "request":{},
             "errors":{}, // put app the error happened in
             "date":new Date()
@@ -36,13 +38,28 @@ function appInit( app, http_server_config, socketFuncts ){
             toSend.request[cur] = req[cur];
         });
 
-        let jsonResponse = await new Promise((resolve, reject)=>{
+        let promiseResult:any = await new Promise((resolve, reject)=>{
+
+            let preferedResponseName = toSend.connection.preferedResponseName;
+            let preferedResponseIndex = 0;
 
             socketFuncts.sendToSockets(toSend, incoming_token).then((data)=>{
-                if( data.result_only ){
-                    resolve(data.result);
+
+                if( preferedResponseName ){
+                    // TODO pull index for prefered name
+                    // preferedResponseIndex = 0;
+                }
+
+                if( typeof data[0] === "string"  ){// TODO do better than picking the first element
+                    resolve({
+                        "result":data[0],
+                        "type":"string"
+                    });
                 }else{
-                    resolve(data);
+                    resolve({
+                        "result":data,
+                        "type":"object"
+                    });
                 }  
             });
 
@@ -51,10 +68,21 @@ function appInit( app, http_server_config, socketFuncts ){
             }, http_server_config.timeout);
 
         });
+
+        if( promiseResult.type === "string" ){
+
+            res.end(promiseResult.result);
+
+        }else if( promiseResult.type === "object" ){
+
+            try{
+                res.json(promiseResult.result);
+            }catch(e){
+                console.error(e);
+            }
+        }
         
-        try{
-            res.json(jsonResponse);
-        }catch(e){console.error(e);}
+        
     })
 
     // this must be last

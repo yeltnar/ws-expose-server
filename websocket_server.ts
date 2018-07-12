@@ -27,11 +27,14 @@ function wsInit( server, ws_server_config  ){
 
             if( message.response_device ){
                 if ( check_message_response_device( message.response_device ) ){
+                    let oldName = ws.device_name
                     ws.device_name = message.response_device.device_name;
                     ws.device_group = message.response_device.device_group;
                     ws.token = message.response_device.token;
                     ws.token_type = message.response_device.token_type || "string";
-                    console.log(ws.device_name+" name set")
+                    if(oldName !== ws.device_name){
+                        console.log(ws.device_name+" name set")
+                    }
                 }
             }else{ console.warn("message.response_device is not set!"); }
 
@@ -46,7 +49,7 @@ function wsInit( server, ws_server_config  ){
 
                     toReturn = ws.token_regex.test(inStr);
                 }else if( ws.token_type === "string" ){
-                    console.warn("Not a regex; ws.device_name "+ws.device_name+" ws.device_group "+ws.device_group);
+                    console.warn("Not a regex; ws.device_name-`"+ws.device_name+"` ws.device_group-`"+ws.device_group+"`");
                     toReturn = inStr === inStr;
                 }else{
                     throw "websocket_server.ts 48 EEEEEKKKK"

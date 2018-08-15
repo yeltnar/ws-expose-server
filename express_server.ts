@@ -50,6 +50,15 @@ function appInit( app, http_server_config, socketFuncts ){
                     // preferedResponseIndex = 0;
                 }
 
+                // remove ones that did not execute 
+                data = data.reduce((acc, cur)=>{
+
+                    if( cur.did_not_execute !== true ){
+                        acc.push(cur);
+                    }
+                    return acc;
+                }, []);
+
                 if( typeof data[0] === "string"  ){// TODO do better than picking the first element
                     resolve({
                         "result":data[0],
